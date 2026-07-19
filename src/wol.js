@@ -10,7 +10,7 @@ class WakeOnLan extends EventEmitter {
         this.logDebug = config.log?.debug;
     }
 
-    async wakeOnLan() {
+    async wake() {
         return new Promise((resolve, reject) => {
             try {
                 // Parse MAC once
@@ -59,10 +59,13 @@ class WakeOnLan extends EventEmitter {
             }
         });
     }
+
+    async wakeOnLan() {
+        return this.wake();
+    }
 }
 
 export default WakeOnLan;
-
 
 
 

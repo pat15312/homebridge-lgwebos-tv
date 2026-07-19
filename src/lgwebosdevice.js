@@ -1,5 +1,5 @@
 import EventEmitter from 'events';
-import WakeOnLan from './wol.js';
+import WakeController from './wakecontroller.js';
 import LgWebOsSocket from './lgwebossocket.js';
 import Functions from './functions.js';
 import { ApiUrls, SystemApps, PictureModes, SoundModes, SoundOutputs, PowerOnWaitAttempts } from './constants.js';
@@ -132,7 +132,7 @@ class LgWebOsDevice extends EventEmitter {
                 case 'Power':
                     switch (value) {
                         case true:
-                            set = !this.power ? await this.wol.wakeOnLan() : true;
+                            set = !this.power ? await this.wakeController.wake() : true;
                             break;
                         case false:
                             cid = await this.lgWebOsSocket.getCid('Power');
@@ -481,7 +481,7 @@ class LgWebOsDevice extends EventEmitter {
                                 case 1:
                                     this.isBooting = true;
 
-                                    await this.wol.wakeOnLan();
+                                    await this.wakeController.wake();
 
                                     if (this.startInput) {
                                         (async () => {
@@ -1403,13 +1403,14 @@ class LgWebOsDevice extends EventEmitter {
 
     //start
     async start() {
-        //Wake On Lan
+        //Power wake controller
         try {
-            this.wol = new WakeOnLan(this.device)
+            this.wakeController = new WakeController(this.device)
                 .on('debug', (debug) => this.emit('debug', debug))
                 .on('error', (error) => this.emit('error', error));
         } catch (error) {
-            if (this.logWarn) this.emit('warn', `Wake On Lan start error: ${error}`);
+            this.wakeController = { wake: async () => { throw error; } };
+            if (this.logWarn) this.emit('warn', `Power wake controller start error: ${error}`);
         }
 
         try {

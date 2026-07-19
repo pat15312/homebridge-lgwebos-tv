@@ -116,7 +116,11 @@
 | `screen.turnOnOff` | This enable possibility turn the screen ON/OFF, webOS >= 4.0. |
 | `screen.saverOnOff` | This enable possibility turn the screen saver ON/OFF, webOS >= 4.0. |
 | `power{}` | Power object. |
-| `power.broadcastAddress` | Her set network `Broadcast Address`, only if You use VLANS in Your network configuration and Your router/switch support IP Directed Broadcast, default is `255.255.255.255`. |
+| `power.wakeMethod` | Power-on method: `wol` (default) or `http`. Existing configurations continue to use Wake-on-LAN. |
+| `power.broadcastAddress` | Here set the network `Broadcast Address` for Wake-on-LAN, default is `255.255.255.255`. |
+| `power.wakeUrl` | Trusted HTTP or HTTPS endpoint used when `wakeMethod` is `http`. |
+| `power.wakeHttpMethod` | HTTP request method, `POST` (default) or `GET`. |
+| `power.wakeTimeout` | Maximum time to wait for the HTTP endpoint in milliseconds, default is `5000`. |
 | `power.startInput` | This enable possibilty to set default Input/App after Power ON TV. |
 | `power.startInputReference` | Here set the default Input/App reference. |
 | `volume{}` | Volume object. |
@@ -148,6 +152,27 @@
 | `mqtt.auth.user` | Here set the MQTT Broker user. |
 | `mqtt.auth.passwd` | Here set the MQTT Broker password. |
 | `reference` | All can be found in `homebridge_directory/lgwebosTv`, `inputs_xxx` file. |
+
+### Power-on methods
+
+Wake-on-LAN remains the default power-on method. Existing configurations do not need to change, and `power.broadcastAddress` continues to control the WOL broadcast destination.
+
+For network arrangements where the TV cannot receive an ordinary WOL magic packet, the plugin can instead call a trusted HTTP or HTTPS endpoint:
+
+```json
+"power": {
+  "wakeMethod": "http",
+  "wakeUrl": "http://living-room-wake.lan/tv/on",
+  "wakeHttpMethod": "POST",
+  "wakeTimeout": 5000,
+  "startInput": false,
+  "startInputReference": "com.webos.app.home"
+}
+```
+
+`GET` and `POST` are supported. Only a `2xx` response is treated as successful. Redirects, non-`2xx` responses, connection failures and timeouts fail the power-on request without indefinite retries. Power-off continues to use the webOS API.
+
+Use a trusted local endpoint. Do not expose the endpoint unnecessarily or place credentials directly in a URL, because URLs can appear in configuration backups and diagnostic output from other systems. The plugin does not log the configured wake URL.
 
 ### RESTFul Integration
 

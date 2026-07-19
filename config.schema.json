@@ -946,12 +946,80 @@
               "title": "Power",
               "type": "object",
               "properties": {
+                "wakeMethod": {
+                  "title": "Power On Method",
+                  "type": "string",
+                  "default": "wol",
+                  "description": "Select how the TV is powered on. Wake-on-LAN is the default and preserves existing behaviour.",
+                  "anyOf": [
+                    {
+                      "title": "Wake-on-LAN",
+                      "enum": [
+                        "wol"
+                      ]
+                    },
+                    {
+                      "title": "HTTP Request",
+                      "enum": [
+                        "http"
+                      ]
+                    }
+                  ]
+                },
                 "broadcastAddress": {
                   "title": "Broadcast address",
                   "type": "string",
                   "placeholder": "255.255.255.255",
                   "format": "ipv4",
-                  "description": "Her set network broadcast address, only if You use VLANS in Your network configuration and Your router/switch support IP Directed Broadcast."
+                  "description": "Here set the network broadcast address for Wake-on-LAN. The default is 255.255.255.255.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].power.wakeMethod !== 'http'"
+                  }
+                },
+                "wakeUrl": {
+                  "title": "Power On URL",
+                  "type": "string",
+                  "placeholder": "http://living-room-wake.lan/tv/on",
+                  "format": "uri",
+                  "pattern": "^https?://",
+                  "description": "Trusted local HTTP or HTTPS endpoint used to power on the TV. Do not include credentials in the URL.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].power.wakeMethod === 'http'"
+                  }
+                },
+                "wakeHttpMethod": {
+                  "title": "HTTP Method",
+                  "type": "string",
+                  "default": "POST",
+                  "description": "HTTP method sent to the power-on endpoint.",
+                  "anyOf": [
+                    {
+                      "title": "POST",
+                      "enum": [
+                        "POST"
+                      ]
+                    },
+                    {
+                      "title": "GET",
+                      "enum": [
+                        "GET"
+                      ]
+                    }
+                  ],
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].power.wakeMethod === 'http'"
+                  }
+                },
+                "wakeTimeout": {
+                  "title": "HTTP Timeout",
+                  "type": "integer",
+                  "default": 5000,
+                  "minimum": 100,
+                  "maximum": 60000,
+                  "description": "Maximum time to wait for the power-on endpoint, in milliseconds.",
+                  "condition": {
+                    "functionBody": "return model.devices[arrayIndices].power.wakeMethod === 'http'"
+                  }
                 },
                 "startInput": {
                   "title": "Default Input",
@@ -967,7 +1035,26 @@
                     "functionBody": "return model.devices[arrayIndices].power.startInput === true"
                   }
                 }
-              }
+              },
+              "allOf": [
+                {
+                  "if": {
+                    "required": [
+                      "wakeMethod"
+                    ],
+                    "properties": {
+                      "wakeMethod": {
+                        "const": "http"
+                      }
+                    }
+                  },
+                  "then": {
+                    "required": [
+                      "wakeUrl"
+                    ]
+                  }
+                }
+              ]
             },
             "volume": {
               "title": "Volume",

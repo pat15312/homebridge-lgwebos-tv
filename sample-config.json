@@ -61,6 +61,7 @@
                         }
                     ],
                     "power": {
+                        "wakeMethod": "wol",
                         "broadcastAddress": "255.255.255.255",
                         "startInput": false,
                         "startInputReference": "com.webos.app.home"

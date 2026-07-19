@@ -979,10 +979,10 @@
                 "wakeUrl": {
                   "title": "Power On URL",
                   "type": "string",
-                  "placeholder": "http://living-room-wake.lan/tv/on",
+                  "placeholder": "http://192.168.0.50:8080/tv/on",
                   "format": "uri",
                   "pattern": "^https?://",
-                  "description": "Trusted local HTTP or HTTPS endpoint used to power on the TV. Do not include credentials in the URL.",
+                  "description": "Trusted local HTTP or HTTPS endpoint used to power on the TV. Replace the example IP address and port with those of your wake service. Do not include credentials in the URL.",
                   "condition": {
                     "functionBody": "return model.devices[arrayIndices].power.wakeMethod === 'http'"
                   }

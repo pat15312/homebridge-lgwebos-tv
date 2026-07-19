@@ -162,13 +162,15 @@ For network arrangements where the TV cannot receive an ordinary WOL magic packe
 ```json
 "power": {
   "wakeMethod": "http",
-  "wakeUrl": "http://living-room-wake.lan/tv/on",
+  "wakeUrl": "http://192.168.0.50:8080/tv/on",
   "wakeHttpMethod": "POST",
   "wakeTimeout": 5000,
   "startInput": false,
   "startInputReference": "com.webos.app.home"
 }
 ```
+
+The IP address and port above are examples. Replace them with the actual address and port of the local service that will wake the TV.
 
 `GET` and `POST` are supported. Only a `2xx` response is treated as successful. Redirects, non-`2xx` responses, connection failures and timeouts fail the power-on request without indefinite retries. Power-off continues to use the webOS API.
 

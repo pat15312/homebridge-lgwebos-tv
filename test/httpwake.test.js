@@ -5,7 +5,7 @@ import HttpWake from '../src/httpwake.js';
 const config = (power = {}) => ({
     power: {
         wakeMethod: 'http',
-        wakeUrl: 'http://living-room-wake.lan/tv/on',
+        wakeUrl: 'http://192.168.0.50:8080/tv/on',
         ...power
     }
 });
@@ -20,7 +20,7 @@ test('HTTP wake defaults to POST and accepts a 2xx response', async () => {
     const result = await new HttpWake(config(), fetchFn).wake();
 
     assert.equal(result, true);
-    assert.equal(request.url.href, 'http://living-room-wake.lan/tv/on');
+    assert.equal(request.url.href, 'http://192.168.0.50:8080/tv/on');
     assert.equal(request.options.method, 'POST');
     assert.equal(request.options.redirect, 'manual');
 });
@@ -73,7 +73,7 @@ test('HTTP wake times out cleanly', async () => {
 
 test('HTTP wake reports connection errors without exposing the URL', async () => {
     const fetchFn = async () => {
-        const error = new TypeError('fetch failed for http://user:secret@living-room-wake.lan/tv/on');
+        const error = new TypeError('fetch failed for http://user:secret@192.168.0.50:8080/tv/on');
         error.cause = { code: 'ECONNREFUSED' };
         throw error;
     };
@@ -82,7 +82,7 @@ test('HTTP wake reports connection errors without exposing the URL', async () =>
         new HttpWake(config(), fetchFn).wake(),
         (error) => {
             assert.match(error.message, /failed to connect \(ECONNREFUSED\)/);
-            assert.doesNotMatch(error.message, /user|secret|living-room/);
+            assert.doesNotMatch(error.message, /user|secret|192\.168\.0\.50/);
             return true;
         }
     );
@@ -97,7 +97,7 @@ test('HTTP wake rejects incomplete or invalid configuration before requesting', 
 
     await assert.rejects(new HttpWake(config({ wakeUrl: undefined }), fetchFn).wake(), /requires power\.wakeUrl/);
     await assert.rejects(new HttpWake(config({ wakeUrl: 'file:///tmp/wake' }), fetchFn).wake(), /only supports HTTP and HTTPS/);
-    await assert.rejects(new HttpWake(config({ wakeUrl: 'http://user:secret@living-room-wake.lan/tv/on' }), fetchFn).wake(), /must not include credentials/);
+    await assert.rejects(new HttpWake(config({ wakeUrl: 'http://user:secret@192.168.0.50:8080/tv/on' }), fetchFn).wake(), /must not include credentials/);
     await assert.rejects(new HttpWake(config({ wakeHttpMethod: 'DELETE' }), fetchFn).wake(), /only supports GET and POST/);
     await assert.rejects(new HttpWake(config({ wakeTimeout: 0 }), fetchFn).wake(), /timeout must be an integer/);
     assert.equal(calls, 0);
